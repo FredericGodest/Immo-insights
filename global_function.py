@@ -125,7 +125,8 @@ def Global_insights():
     fig = px.scatter_mapbox(df_global, lat="latitude", lon="longitude", color="rendement brut %", size="nb de location %",
                             labels="Localisation", color_continuous_scale=px.colors.sequential.thermal, size_max=30,
                             zoom=12,
-                            mapbox_style="carto-positron")
+                            mapbox_style="carto-positron",
+                            hover_name=df_global.index)
     fig.update_layout(title_text = "Carte des rendements dans les quartiers de Rouen")
     st.plotly_chart(fig)
 
