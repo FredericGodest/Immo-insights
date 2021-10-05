@@ -5,7 +5,6 @@ This is the module which gives global insights for data analytics.
 #import libraries
 import pickle
 import pandas as pd
-from geopy.geocoders import Nominatim
 import streamlit as st
 import plotly.graph_objects as go
 import numpy as np
@@ -127,7 +126,7 @@ def Global_insights():
                             zoom=12,
                             mapbox_style="carto-positron",
                             hover_name=df_global.index)
-    fig.update_layout(title_text = "Carte des rendements dans les quartiers de Rouen")
+    fig.update_layout(title_text="Carte des rendements dans les quartiers de Rouen")
     st.plotly_chart(fig)
 
     # Map nb de vente
@@ -141,7 +140,7 @@ def Global_insights():
                             zoom=12,
                             mapbox_style="carto-positron",
                             hover_name=df_map.index)
-    fig.update_layout(title_text = "Carte des ventes enregistrées entre 2016 et 2020 les quartiers de Rouen")
+    fig.update_layout(title_text="Carte des ventes enregistrées entre 2016 et 2020 les quartiers de Rouen")
     st.plotly_chart(fig)
 
 
