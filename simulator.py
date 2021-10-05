@@ -98,7 +98,6 @@ def Estimator():
     st.markdown(f"Le loyer sera de **{int(loyer)} euros** par mois pour le {surface} m2 au *{adress}*")
 
     # Price estimations
-    st.markdown(f"Remboursement en **{year} ans**")
     credit = mensualite * (1 - (1 + bank_rate / 12) ** (-12 * year)) / (bank_rate / 12)
     rendement_brut = loyer * 12 / credit * 100
     rendement_net = (loyer * 12 - charge_copro - taxe_fonciere) / credit * 100
