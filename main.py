@@ -6,7 +6,7 @@ This is the main module for running Streamlit web application
 from global_function import *
 from simulator import *
 
-st.set_page_config(page_title = "Immo Insights", layout = 'wide', initial_sidebar_state = 'auto')
+st.set_page_config(page_title = "Immo Insights")
 st.sidebar.title("Navigation")
 selection = st.sidebar.radio("", ["Global Insights", "Simulateur"])
 
