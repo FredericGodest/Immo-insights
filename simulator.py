@@ -61,8 +61,8 @@ def Estimator():
     adress = st.text_input("Adresse au format : rue, Rouen", default_adress)
     surface = st.number_input("Surface en m2", default_surface)
     bank_rate = st.number_input("Taux du prêt immo en %", default_bank) / 100
-    taxe_fonciere = st.number_input("Taxe foncière en euros/an", default_taxe)
-    charge_copro = st.number_input("Charge de copro en euros/an", default_charge)
+    taxe_fonciere = st.number_input("Taxe foncière en €/an", default_taxe)
+    charge_copro = st.number_input("Charge de copro en €/an", default_charge)
 
     # Geocoding and tests
     locator = Nominatim(user_agent="myGeocoder")
@@ -91,40 +91,42 @@ def Estimator():
     loyer = surface * objective(surface, d, e, f)  # estimation du loyer
 
     # First calculation
-    mensualite = loyer * 0.7
+    mensualite = (loyer) * 0.7
     travaux_lourd = 1000 * surface
     travaux_leger = 350 * surface
     st.markdown("# Loyers #")
-    st.markdown(f"Le loyer sera de **{int(loyer)} euros** par mois pour le {surface} m2 au *{adress}*")
+    st.markdown(f"Le loyer sera de **{int(loyer)} €** par mois pour le {surface} m2 au *{adress}*")
 
     # Price estimations
     credit = mensualite * (1 - (1 + bank_rate / 12) ** (-12 * year)) / (bank_rate / 12)
     rendement_brut = loyer * 12 / credit * 100
-    rendement_net = (loyer * 12 - charge_copro - taxe_fonciere) / credit * 100
+    rendement_net = (loyer * 12 - taxe_fonciere - charge_copro) / credit * 100
+    cash_flow_brut = loyer - mensualite
+    cash_flow_net = loyer - mensualite - (taxe_fonciere + charge_copro) / 12
     st.markdown("# Rendements et Prêts #")
     st.markdown("## Rendements ##")
     st.markdown(f"Remboursement en **{year} ans**.")
-    st.markdown(f"Le rendement brut estimé est de **{round(rendement_brut, 2)}%**")
-    st.markdown(f"Le rendement net de charge estimé est de **{round(rendement_net, 2)}%**")
+    st.markdown(f"Le rendement brut estimé est de **{round(rendement_brut, 2)}%**. Cash flow brut de **{round(cash_flow_brut, 2)}€**")
+    st.markdown(f"Le rendement net de charge estimé est de **{round(rendement_net, 2)}%**. Cash flow net de **{round(cash_flow_net, 2)}€**")
 
     # Gros Travaux
     st.markdown("## Prêts ##")
     prix_notaire = credit - travaux_lourd
     prix_vente = prix_notaire / 1.08  # -notaire
     st.markdown("### Gros travaux ###")
-    st.markdown(f"**{int(prix_vente)} euros** avec des gros travaux. Soit **{int(prix_vente / surface)} euros/m2**.")
+    st.markdown(f"**{int(prix_vente)} €** avec des gros travaux. Soit **{int(prix_vente / surface)} €/m2**.")
 
     # Petits Travaux
     prix_notaire = credit - travaux_leger
     prix_vente = prix_notaire / 1.08  # -notaire
     st.markdown("### Petits travaux ###")
-    st.markdown(f"**{int(prix_vente)} euros** avec des petits travaux. Soit **{int(prix_vente / surface)} euros/m2**.")
+    st.markdown(f"**{int(prix_vente)} €** avec des petits travaux. Soit **{int(prix_vente / surface)} €/m2**.")
 
     # Sans Travaux
     prix_notaire = credit
     prix_vente = prix_notaire / 1.08  # -notaire
     st.markdown("### SANS travaux ###")
-    st.markdown(f"**{int(prix_vente)} euros** sans travaux. Soit **{int(prix_vente / surface)} euros/m2**.")
+    st.markdown(f"**{int(prix_vente)} €** sans travaux. Soit **{int(prix_vente / surface)} €/m2**.")
 
     st.markdown(f"# Insights du quartier {quartier} #")
     # Plot Location
@@ -139,7 +141,7 @@ def Estimator():
                              name="approximation"))
     fig.update_layout(title_text=f"Evolution du loyer en fonction de la surface dans le quartier {quartier}",
                       xaxis_title="Surface en m2",
-                      yaxis_title="Loyer en euros")
+                      yaxis_title="Loyer en €")
     st.plotly_chart(fig)
 
     # plot density surface
@@ -178,7 +180,7 @@ def Estimator():
                              name="tendance"))
     fig.update_layout(title_text=f"Evolution du prix de vente du m2 en fonction des années dans le quartier",
                       xaxis_title="Années",
-                      yaxis_title="Prix de vente [euros/m2]")
+                      yaxis_title="Prix de vente [€/m2]")
     st.plotly_chart(fig)
 
 
@@ -203,7 +205,7 @@ def Estimator():
     group_labels = ["Ventes"]
     fig = ff.create_distplot(hist_data, group_labels, bin_size=250)
     fig.update_layout(title_text=f"Densité des prix en 2020 dans le quartier {quartier}",
-                      xaxis_title="Prix en euros")
+                      xaxis_title="Prix en €")
     st.plotly_chart(fig)
 
     # plot Map

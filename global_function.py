@@ -66,7 +66,7 @@ def Global_insights():
                              mode="lines",
                              name="tendance"))
     fig.update_layout(title_text="Loyer au m2 en fonction de la surface",
-                      yaxis_title="loyer [euros/m2]",
+                      yaxis_title="loyer [€/m2]",
                       xaxis_title="surface [m2]")
     st.plotly_chart(fig)
 
@@ -76,7 +76,8 @@ def Global_insights():
     hist_data = [vente, location]
     group_labels = ["Ventes", "Locations"]
     fig = ff.create_distplot(hist_data, group_labels, bin_size=5)
-    fig.update_layout(title_text="Nombre de location et de vente en fonction de la surface")
+    fig.update_layout(title_text="Nombre de location et de vente en fonction de la surface",
+                      xaxis_title="surface [m2]")
     st.plotly_chart(fig)
 
     # SELL preparing data for plotting
@@ -103,7 +104,7 @@ def Global_insights():
                              name="tendance"))
     fig.update_layout(title_text="Evolution du prix de vente du m2 en fonction des années",
                       xaxis_title="Années",
-                      yaxis_title="Prix de vente [euros/m2]")
+                      yaxis_title="Prix de vente [€/m2]")
     st.plotly_chart(fig)
 
     # NUMBER SELL plotting
