@@ -54,19 +54,19 @@ def Estimator():
     default_surface = 25
     default_bank = 1.15
     default_taxe = 1000
-    default_charge = 750
+    default_charge = 500
     year = 20
     default_assurance = 120
     dafault_comptable = 40 * 12
 
     # Users Inputs
-    adress = st.text_input("Adresse au format : rue, Rouen", default_adress)
-    surface = st.number_input("Surface en m2", default_surface)
-    bank_rate = st.number_input("Taux du prêt immo en %", default_bank) / 100
-    taxe_fonciere = st.number_input("Taxe foncière en €/an", default_taxe)
-    charge_copro = st.number_input("Charge de copro en €/an", default_charge)
-    assurance = st.number_input("Assurance loyer en €/an", default_assurance)
-    comptable = st.number_input("Prix comptable en €/an", dafault_comptable)
+    adress = st.text_input("Adresse au format : rue, Rouen", value=default_adress)
+    surface = st.number_input("Surface en m2", value=default_surface)
+    bank_rate = st.number_input("Taux du prêt immo en %", value=default_bank) / 100
+    taxe_fonciere = st.number_input("Taxe foncière en €/an", value=default_taxe)
+    charge_copro = st.number_input("Charge de copro en €/an", value=default_charge)
+    assurance = st.number_input("Assurance loyer en €/an", value=default_assurance)
+    comptable = st.number_input("Prix comptable en €/an", value=dafault_comptable)
 
     # Geocoding and tests
     locator = Nominatim(user_agent="myGeocoder")
