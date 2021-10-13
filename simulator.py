@@ -56,6 +56,8 @@ def Estimator():
     default_taxe = 1000
     default_charge = 750
     year = 20
+    default_assurance = 120
+    dafault_comptable = 40 * 12
 
     # Users Inputs
     adress = st.text_input("Adresse au format : rue, Rouen", default_adress)
@@ -63,6 +65,8 @@ def Estimator():
     bank_rate = st.number_input("Taux du prêt immo en %", default_bank) / 100
     taxe_fonciere = st.number_input("Taxe foncière en €/an", default_taxe)
     charge_copro = st.number_input("Charge de copro en €/an", default_charge)
+    assurance = st.number_input("Assurance loyer en €/an", default_assurance)
+    comptable = st.number_input("Prix comptable en €/an", dafault_comptable)
 
     # Geocoding and tests
     locator = Nominatim(user_agent="myGeocoder")
@@ -91,7 +95,7 @@ def Estimator():
     loyer = surface * objective(surface, d, e, f)  # estimation du loyer
 
     # First calculation
-    mensualite = (loyer) * 0.7
+    mensualite = loyer * 0.7 - (taxe_fonciere / 12 + charge_copro / 12) / 2
     travaux_lourd = 1000 * surface
     travaux_leger = 350 * surface
     st.markdown("# Loyers #")
@@ -100,7 +104,7 @@ def Estimator():
     # Price estimations
     credit = mensualite * (1 - (1 + bank_rate / 12) ** (-12 * year)) / (bank_rate / 12)
     rendement_brut = loyer * 12 / credit * 100
-    rendement_net = (loyer * 12 - taxe_fonciere - charge_copro) / credit * 100
+    rendement_net = (loyer * 12 - taxe_fonciere - charge_copro - assurance - comptable) / credit * 100
     cash_flow_brut = loyer - mensualite
     cash_flow_net = loyer - mensualite - (taxe_fonciere + charge_copro) / 12
     st.markdown("# Rendements et Prêts #")
@@ -115,18 +119,21 @@ def Estimator():
     prix_vente = prix_notaire / 1.08  # -notaire
     st.markdown("### Gros travaux ###")
     st.markdown(f"**{int(prix_vente)} €** avec des gros travaux. Soit **{int(prix_vente / surface)} €/m2**.")
+    st.markdown(f"Négociation : {int(prix_vente * 0.65)}, {int(prix_vente * 0.85)}, {int(prix_vente * 0.95)} ")
 
     # Petits Travaux
     prix_notaire = credit - travaux_leger
     prix_vente = prix_notaire / 1.08  # -notaire
     st.markdown("### Petits travaux ###")
     st.markdown(f"**{int(prix_vente)} €** avec des petits travaux. Soit **{int(prix_vente / surface)} €/m2**.")
+    st.markdown(f"Négociation : {int(prix_vente * 0.65)}, {int(prix_vente * 0.85)}, {int(prix_vente * 0.95)} ")
 
     # Sans Travaux
     prix_notaire = credit
     prix_vente = prix_notaire / 1.08  # -notaire
     st.markdown("### SANS travaux ###")
     st.markdown(f"**{int(prix_vente)} €** sans travaux. Soit **{int(prix_vente / surface)} €/m2**.")
+    st.markdown(f"Négociation : {int(prix_vente * 0.65)}, {int(prix_vente * 0.85)}, {int(prix_vente * 0.95)} ")
 
     st.markdown(f"# Insights du quartier {quartier} #")
     # Plot Location
