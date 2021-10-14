@@ -41,7 +41,7 @@ def Detail_report():
     windows = st.number_input("Nombre de fenêtre à passer en double vitrage", value=0)
 
     # First calculation
-    mensualite = (loyer - (taxe_fonciere / 12 + 0.3 * charge_copro / 12 + assurance / 12 + comptable / 12)) * 0.85
+    mensualite = (loyer - (taxe_fonciere / 12 + 0.3 * charge_copro / 12 + assurance / 12 + comptable / 12)) * 0.83
     travaux_lourd = 800 * surface_lourd
     travaux_leger = 300 * surface_leger
     travaux_fenetre = 1300 * windows

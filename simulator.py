@@ -95,7 +95,7 @@ def Estimator():
     loyer = surface * objective(surface, d, e, f)  # estimation du loyer
 
     # First calculation
-    mensualite = (loyer - (taxe_fonciere / 12 + charge_copro / 12 + assurance / 12 + comptable / 12)) * 0.9
+    mensualite = (loyer - (taxe_fonciere / 12 + 0.3 * charge_copro / 12 + assurance / 12 + comptable / 12)) * 0.85
     travaux_lourd = 800 * surface
     travaux_leger = 300 * surface
     st.markdown("# Loyers #")
@@ -104,9 +104,9 @@ def Estimator():
     # Price estimations
     credit = mensualite * (1 - (1 + bank_rate / 12) ** (-12 * year)) / (bank_rate / 12)
     rendement_brut = loyer * 12 / credit * 100
-    rendement_net = (loyer * 12 - taxe_fonciere - charge_copro - assurance - comptable) / credit * 100
+    rendement_net = (loyer * 12 - taxe_fonciere - 0.3 * charge_copro - assurance - comptable) / credit * 100
     cash_flow_brut = loyer - mensualite
-    cash_flow_net = loyer - mensualite - (taxe_fonciere + charge_copro) / 12
+    cash_flow_net = loyer - mensualite - (0.3 * charge_copro + taxe_fonciere + assurance + comptable) / 12
     st.markdown("# Rendements et Prêts #")
     st.markdown("## Rendements ##")
     st.markdown(f"Remboursement en **{year} ans**.")
