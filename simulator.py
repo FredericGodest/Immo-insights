@@ -99,7 +99,7 @@ def Estimator():
     travaux_lourd = 800 * surface
     travaux_leger = 300 * surface
     st.markdown("# Loyers #")
-    st.markdown(f"Le loyer sera de **{int(loyer)} €** par mois pour le {surface} m2 au *{adress}*")
+    st.markdown(f"Le loyer estimé est de **{int(loyer)} €** par mois (dont {int(0.7 * charge_copro / 12)} € de charge) pour un {surface} m2 au *{adress}*")
 
     # Price estimations
     credit = mensualite * (1 - (1 + bank_rate / 12) ** (-12 * year)) / (bank_rate / 12)

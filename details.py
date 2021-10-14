@@ -40,22 +40,21 @@ def Detail_report():
     surface_lourd = st.number_input("Surface à rénover complétement en m2", value=0)
     windows = st.number_input("Nombre de fenêtre à passer en double vitrage", value=0)
 
-
     # First calculation
-    mensualite = (loyer - (taxe_fonciere / 12 + charge_copro / 12 + assurance / 12 + comptable / 12)) * 0.9
+    mensualite = (loyer - (taxe_fonciere / 12 + 0.3 * charge_copro / 12 + assurance / 12 + comptable / 12)) * 0.85
     travaux_lourd = 800 * surface_lourd
     travaux_leger = 300 * surface_leger
     travaux_fenetre = 1300 * windows
     travaux = travaux_lourd + travaux_leger + travaux_fenetre
     st.markdown("## Loyers ##")
-    st.markdown(f"Le loyer estimé est de **{int(loyer)} €** par mois pour un {surface} m2 au *{adress}*")
+    st.markdown(f"Le loyer estimé est de **{int(loyer)} €** par mois (dont {int(0.7 * charge_copro / 12)} € de charge) pour un {surface} m2 au *{adress}*")
 
     # Price estimations
     credit = mensualite * (1 - (1 + bank_rate / 12) ** (-12 * year)) / (bank_rate / 12)
     rendement_brut = loyer * 12 / credit * 100
-    rendement_net = (loyer * 12 - taxe_fonciere - charge_copro - assurance - comptable) / credit * 100
+    rendement_net = (loyer * 12 - taxe_fonciere - 0.3 * charge_copro - assurance - comptable) / credit * 100
     cash_flow_brut = loyer - mensualite
-    cash_flow_net = loyer - mensualite - (charge_copro + taxe_fonciere + assurance + comptable) / 12
+    cash_flow_net = loyer - mensualite - (0.3 * charge_copro + taxe_fonciere + assurance + comptable) / 12
 
     # Rapport
     prix_notaire = credit - travaux
