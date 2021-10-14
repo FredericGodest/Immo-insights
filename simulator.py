@@ -44,7 +44,7 @@ def Estimator():
     # Titles
     st.title("Simulateur d'achat et insights de quartier")
     st.write("Bienvenue dans le simulateur de prix d'appartement. Ce simulateur se base sur l'adresse,"
-             " la surface, les charges de copropriété, les taxes foncières et la taux du prêt."
+             " la surface, les charges de copropriété, les taxes foncières et le taux du prêt."
              " Ce simulateur vous donnera aussi des données pertinentes sur le quartier sous forme de graphique.")
     st.write("Les données de vente viennent de https://www.data.gouv.fr/fr/. "
              "Les données de location viennent de https://leboncoin.fr.")
