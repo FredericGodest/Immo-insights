@@ -69,9 +69,7 @@ def Detail_report():
     st.markdown(f"##### **{int(prix_vente)} €**. Soit **{int(prix_vente / surface)} €/m2**. #####")
 
     #data Perso
-    st.markdown("# Rendements et Prêts #")
     st.markdown("## Rendements ##")
-    st.markdown(f"Remboursement en **{year} ans**.")
     st.markdown(f"Le rendement brut estimé est de **{round(rendement_brut, 2)}%**. Cash flow brut de **{round(cash_flow_brut, 2)}€**")
     st.markdown(f"Le rendement net de charge estimé est de **{round(rendement_net, 2)}%**. Cash flow net de **{round(cash_flow_net, 2)}€**")
 
