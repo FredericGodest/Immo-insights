@@ -42,7 +42,7 @@ def Detail_report():
 
 
     # First calculation
-    mensualite = loyer * 0.85 - (taxe_fonciere / 12 + charge_copro / 12)
+    mensualite = (loyer - (taxe_fonciere / 12 + charge_copro / 12 + assurance / 12 + comptable / 12)) * 0.9
     travaux_lourd = 800 * surface_lourd
     travaux_leger = 300 * surface_leger
     travaux_fenetre = 1300 * windows

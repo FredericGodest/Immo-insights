@@ -95,7 +95,7 @@ def Estimator():
     loyer = surface * objective(surface, d, e, f)  # estimation du loyer
 
     # First calculation
-    mensualite = loyer * 0.85 - (taxe_fonciere / 12 + charge_copro / 12) / 2
+    mensualite = (loyer - (taxe_fonciere / 12 + charge_copro / 12 + assurance / 12 + comptable / 12)) * 0.9
     travaux_lourd = 800 * surface
     travaux_leger = 300 * surface
     st.markdown("# Loyers #")
