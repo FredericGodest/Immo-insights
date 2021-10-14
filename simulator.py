@@ -95,8 +95,8 @@ def Estimator():
     loyer = surface * objective(surface, d, e, f)  # estimation du loyer
 
     # First calculation
-    mensualite = loyer * 0.8 - (taxe_fonciere / 12 + charge_copro / 12) / 2
-    travaux_lourd = 1000 * surface
+    mensualite = loyer * 0.85 - (taxe_fonciere / 12 + charge_copro / 12) / 2
+    travaux_lourd = 800 * surface
     travaux_leger = 300 * surface
     st.markdown("# Loyers #")
     st.markdown(f"Le loyer sera de **{int(loyer)} €** par mois pour le {surface} m2 au *{adress}*")
