@@ -39,9 +39,10 @@ def Detail_report():
     surface_leger = st.number_input("Surface à légérement rénover en m2", value=0)
     surface_lourd = st.number_input("Surface à rénover complétement en m2", value=0)
     windows = st.number_input("Nombre de fenêtre à passer en double vitrage", value=0)
+    kt = st.number_input("facteur de sécurité", value=85) / 100
 
     # First calculation
-    mensualite = (loyer - (taxe_fonciere / 12 + 0.3 * charge_copro / 12 + assurance / 12 + comptable / 12)) * 0.83
+    mensualite = (loyer - (taxe_fonciere / 12 + 0.3 * charge_copro / 12 + assurance / 12 + comptable / 12)) * kt
     travaux_lourd = 800 * surface_lourd
     travaux_leger = 300 * surface_leger
     travaux_fenetre = 1300 * windows
