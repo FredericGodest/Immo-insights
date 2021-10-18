@@ -50,24 +50,25 @@ def Global_insights():
     df_loc = df_loc[df_loc["surface [m2]"] < limite]
     surface = df_loc["surface [m2]"].to_numpy()
     price = df_loc["prix au m2 [euros]"].to_numpy()
+    rent = df_loc["prix [euros]"].to_numpy()
     popt_loc, _ = curve_fit(objective, surface, price)
     a, b, c = popt_loc
 
     # Creation of line data
     x_line = np.linspace(min(df_loc["surface [m2]"]), max(df_loc["surface [m2]"]), 100)
-    y_line = objective(x_line, a, b, c)
+    y_line = objective(x_line, a, b, c) * x_line
 
     # Rent Plottings
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=surface, y=price,
+    fig.add_trace(go.Scatter(x=surface, y=rent,
                              mode="markers",
                              name="data réel"))
     fig.add_trace(go.Scatter(x=x_line, y=y_line,
                              mode="lines",
-                             name="tendance"))
-    fig.update_layout(title_text="Loyer au m2 en fonction de la surface",
-                      yaxis_title="loyer [€/m2]",
-                      xaxis_title="surface [m2]")
+                             name="approximation"))
+    fig.update_layout(title_text=f"Evolution du loyer en fonction de la surface dans Rouen",
+                      xaxis_title="Surface en m2",
+                      yaxis_title="Loyer en €")
     st.plotly_chart(fig)
 
     # SELL VS LOCATION

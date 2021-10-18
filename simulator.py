@@ -40,6 +40,7 @@ def Estimator():
     df_loc = pd.read_pickle(r"df_loc.pickle")
     df_vente = pd.read_pickle(r"df_vente.pickle")
     df_vente_total = pd.read_pickle(r"df_vente_total.pickle")
+    limite = 100
 
     # Titles
     st.title("Simulateur d'achat et insights de quartier")
@@ -85,11 +86,13 @@ def Estimator():
             (localisation.latitude - df_global["latitude"]) ** 2 + ((localisation.longitude - df_global["longitude"])) ** 2)
     result = df_global.sort_values(by=["distance"], ascending=True).head(1)
     quartier = result.index[0]
+    df_loc = df_loc[df_loc["surface [m2]"] < limite]
     df_precise_loc = df_loc[df_loc["Localisation"] == quartier]
     df_vente_total = df_vente_total[df_vente_total["Quartier"] == quartier]
     df_precise_vente = df_vente[df_vente["Quartier"] == quartier]
     surfaces = df_precise_loc["surface [m2]"].to_numpy()
     price = df_precise_loc["prix au m2 [euros]"].to_numpy()
+    rent = df_precise_loc["prix [euros]"].to_numpy()
     popt_loc, _ = curve_fit(objective, surfaces, price)
     d, e, f = popt_loc
     loyer = surface * objective(surface, d, e, f)  # estimation du loyer
@@ -138,9 +141,9 @@ def Estimator():
     st.markdown(f"# Insights du quartier {quartier} #")
     # Plot Location
     x_line = np.linspace(min(df_loc["surface [m2]"]), max(df_loc["surface [m2]"]), 100)
-    y_line = objective(x_line, d, e, f)
+    y_line = objective(x_line, d, e, f) * x_line
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=surfaces, y=price,
+    fig.add_trace(go.Scatter(x=surfaces, y=rent,
                              mode="markers",
                              name="data réel"))
     fig.add_trace(go.Scatter(x=x_line, y=y_line,
