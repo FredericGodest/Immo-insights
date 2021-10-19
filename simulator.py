@@ -90,11 +90,21 @@ def Estimator():
     df_precise_loc = df_loc[df_loc["Localisation"] == quartier]
     df_vente_total = df_vente_total[df_vente_total["Quartier"] == quartier]
     df_precise_vente = df_vente[df_vente["Quartier"] == quartier]
+
+    #Get global data
+    surfaces = df_loc["surface [m2]"].to_numpy()
+    price = df_loc["prix au m2 [euros]"].to_numpy()
+    popt_loc, _ = curve_fit(objective, surfaces, price)
+    a, b, c = popt_loc
+
+    #Get precise data
     surfaces = df_precise_loc["surface [m2]"].to_numpy()
     price = df_precise_loc["prix au m2 [euros]"].to_numpy()
     rent = df_precise_loc["prix [euros]"].to_numpy()
     popt_loc, _ = curve_fit(objective, surfaces, price)
     d, e, f = popt_loc
+
+    #Compute Rent in the neighbhoor
     loyer = surface * objective(surface, d, e, f)  # estimation du loyer
 
     # First calculation
@@ -142,13 +152,17 @@ def Estimator():
     # Plot Location
     x_line = np.linspace(min(df_loc["surface [m2]"]), max(df_loc["surface [m2]"]), 100)
     y_line = objective(x_line, d, e, f) * x_line
+    y_line_global = objective(x_line, a, b, c) * x_line
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=surfaces, y=rent,
                              mode="markers",
                              name="data réel"))
     fig.add_trace(go.Scatter(x=x_line, y=y_line,
                              mode="lines",
-                             name="approximation"))
+                             name="approximation quartier"))
+    fig.add_trace(go.Scatter(x=x_line, y=y_line_global,
+                             mode="lines",
+                             name="approximation ville"))
     fig.update_layout(title_text=f"Evolution du loyer en fonction de la surface dans le quartier {quartier}",
                       xaxis_title="Surface en m2",
                       yaxis_title="Loyer en €")
