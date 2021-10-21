@@ -3,7 +3,7 @@ This is the module which gives a report for the seller with a given adress,
 surface, taxe, rework, etc.
 """
 
-#import libraries
+# import libraries
 import streamlit as st
 
 def Detail_report():
@@ -25,7 +25,6 @@ def Detail_report():
     default_taxe = 1000
     default_charge = 500
     year = 20
-    assurance = 120
     comptable = 40 * 12
     default_loyer = 500
 
@@ -39,10 +38,13 @@ def Detail_report():
     surface_leger = st.number_input("Surface à légérement rénover en m2", value=0)
     surface_lourd = st.number_input("Surface à rénover complétement en m2", value=0)
     windows = st.number_input("Nombre de fenêtre à passer en double vitrage", value=0)
-    kt = st.number_input("facteur de sécurité", value=85) / 100
+    kt = st.number_input("Facteur de sécurité", value=15) / 100
+    entretien = st.number_input("Entretien par an (en nombre de loyer)", value=1)
+    vacance = st.number_input("Nombre de mois de vacance locative par an", value=1)
 
     # First calculation
-    mensualite = (loyer - (taxe_fonciere / 12 + 0.3 * charge_copro / 12 + assurance / 12 + comptable / 12)) * kt
+    assurance = 0.12 / 100 * loyer * 12  # environ 0.12%
+    mensualite = (loyer - (taxe_fonciere / 12 + 0.3 * charge_copro / 12 + assurance / 12 + comptable / 12)) * (1 - kt)
     travaux_lourd = 800 * surface_lourd
     travaux_leger = 300 * surface_leger
     travaux_fenetre = 1300 * windows
@@ -68,9 +70,21 @@ def Detail_report():
     st.markdown("## Proposition hors frais de notaire ##")
     st.markdown(f"##### **{int(prix_vente)} €**. Soit **{int(prix_vente / surface)} €/m2**. #####")
 
-    #data Perso
+    # Data Rendements
     st.markdown("## Rendements ##")
     st.markdown(f"Le rendement brut estimé est de **{round(rendement_brut, 2)}%**. Cash flow brut de **{round(cash_flow_brut, 2)}€**")
     st.markdown(f"Le rendement net de charge estimé est de **{round(rendement_net, 2)}%**. Cash flow net de **{round(cash_flow_net, 2)}€**")
+
+    # Bilan
+    total_in = loyer * (12 - vacance)
+    total_out = taxe_fonciere + entretien * loyer + 0.3 * charge_copro * (12 - vacance) + charge_copro * vacance + comptable + assurance
+    rendement_annuel = (total_in - total_out) / credit * 100
+    st.markdown("## Bilan annuel ##")
+    st.markdown(f"Total revenus = **{int(total_in)}€**.")
+    st.markdown(f"Total dépenses = **{int(total_out)}€**.")
+    st.markdown(f"Différence = **{int(total_in - total_out)}€**. Soit un rendement annuel de **{round(rendement_annuel, 2)}%**")
+
+
+
 
 

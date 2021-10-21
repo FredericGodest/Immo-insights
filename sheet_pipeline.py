@@ -21,11 +21,11 @@ def get_data():
         config = dotenv_values(".env")
         id = config["SHEET_ID"]
 
-    #Public Credentials
+    # Credentials
     sheet_name = "Rouen_Data"
     url = f"https://docs.google.com/spreadsheets/d/{id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
 
-    #Import
+    # Import
     df = pd.read_csv(url)
     df = df.drop_duplicates(subset=['Titre Annonce',
                                     'offre [loc/achat]',
@@ -35,11 +35,11 @@ def get_data():
                                     'Compte'],
                             keep='last')
 
-    #Filtering DATA
+    # Filtering DATA
     df_loc = df[df["offre [loc/achat]"] == "location"]
     df_loc = df_loc[df_loc["Localisation"].str.startswith("Rouen")]
 
-    #Formating
+    # Formating
     columns_index = [3, 4] #index columns to float
     for index in columns_index:
         df_loc.iloc[:, index] = [x.replace(',', '.') for x in df_loc.iloc[:, index]]  # Decimal sep
