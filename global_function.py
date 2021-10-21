@@ -11,6 +11,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 import plotly.express as px
 import plotly.figure_factory as ff
+from sheet_pipeline import *
 
 
 def objective(x: float, a: float, b: float, c: float) -> float:
@@ -41,7 +42,7 @@ def Global_insights():
 
     # Get Datasets
     df_global = pd.read_pickle(r"df_global.pickle")
-    df_loc = pd.read_pickle(r"df_loc.pickle")
+    df_loc = get_data()
     df_vente = pd.read_pickle(r"df_vente.pickle")
     df_vente_total = pd.read_pickle(r"df_vente_total.pickle")
     limite = 100

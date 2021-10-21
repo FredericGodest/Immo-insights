@@ -13,6 +13,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 import plotly.express as px
 import plotly.figure_factory as ff
+from sheet_pipeline import *
 
 def objective(x: float, a: float, b: float, c: float) -> float:
     """
@@ -37,7 +38,7 @@ def Estimator():
     """
     # Get Datasets
     df_global = pd.read_pickle(r"df_global.pickle")
-    df_loc = pd.read_pickle(r"df_loc.pickle")
+    df_loc = get_data()
     df_vente = pd.read_pickle(r"df_vente.pickle")
     df_vente_total = pd.read_pickle(r"df_vente_total.pickle")
     limite = 100
@@ -91,20 +92,20 @@ def Estimator():
     df_vente_total = df_vente_total[df_vente_total["Quartier"] == quartier]
     df_precise_vente = df_vente[df_vente["Quartier"] == quartier]
 
-    #Get global data
+    # Get global data
     surfaces = df_loc["surface [m2]"].to_numpy()
     price = df_loc["prix au m2 [euros]"].to_numpy()
     popt_loc, _ = curve_fit(objective, surfaces, price)
     a, b, c = popt_loc
 
-    #Get precise data
+    # Get precise data
     surfaces = df_precise_loc["surface [m2]"].to_numpy()
     price = df_precise_loc["prix au m2 [euros]"].to_numpy()
     rent = df_precise_loc["prix [euros]"].to_numpy()
     popt_loc, _ = curve_fit(objective, surfaces, price)
     d, e, f = popt_loc
 
-    #Compute Rent in the neighbhoor
+    # Compute Rent in the neighbhoor
     loyer = surface * objective(surface, d, e, f)  # estimation du loyer
 
     # First calculation
@@ -149,6 +150,7 @@ def Estimator():
     st.markdown(f"Négociation : {int(prix_vente * 0.65)}, {int(prix_vente * 0.85)}, {int(prix_vente * 0.95)} ")
 
     st.markdown(f"# Insights du quartier {quartier} #")
+
     # Plot Location
     x_line = np.linspace(min(df_loc["surface [m2]"]), max(df_loc["surface [m2]"]), 100)
     y_line = objective(x_line, d, e, f) * x_line
