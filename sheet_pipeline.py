@@ -14,7 +14,7 @@ def get_data():
 
     # PROD MOD
     if os.environ.get("ENV") == "PROD":
-        id = os.environ.get("sheet_id")
+        id = os.environ.get("SHEET_ID")
 
     # TEST MOD
     else:
