@@ -71,7 +71,7 @@ def Estimator():
     comptable = st.number_input("Prix comptable en €/an", value=dafault_comptable)
 
     # Geocoding and tests
-    locator = Nominatim(user_agent="myGeocoder")
+    locator = Nominatim(user_agent="my_Geocoder")
     localisation = locator.geocode(adress)
     try:
         output = str(localisation.raw["display_name"])
