@@ -58,8 +58,7 @@ def Estimator():
     default_taxe = 1000
     default_charge = 500
     year = 20
-    default_assurance = 120
-    dafault_comptable = 40 * 12
+    comptalbe = 40 * 12
 
     # Users Inputs
     adress = st.text_input("Adresse au format : rue, Rouen", value=default_adress)
@@ -67,8 +66,6 @@ def Estimator():
     bank_rate = st.number_input("Taux du prêt immo en %", value=default_bank) / 100
     taxe_fonciere = st.number_input("Taxe foncière en €/an", value=default_taxe)
     charge_copro = st.number_input("Charge de copro en €/an", value=default_charge)
-    assurance = st.number_input("Assurance loyer en €/an", value=default_assurance)
-    comptable = st.number_input("Prix comptable en €/an", value=dafault_comptable)
 
     # Geocoding and tests
     locator = Nominatim(user_agent="my_Geocoder")
@@ -107,6 +104,7 @@ def Estimator():
 
     # Compute Rent in the neighbhoor
     loyer = surface * objective(surface, d, e, f)  # estimation du loyer
+    assurance = 0.12 / 100 * loyer * 12  # environ 0.12%
 
     # First calculation
     mensualite = (loyer - (taxe_fonciere / 12 + 0.3 * charge_copro / 12 + assurance / 12 + comptable / 12)) * 0.85
