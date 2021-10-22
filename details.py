@@ -77,12 +77,12 @@ def Detail_report():
 
     # Bilan
     total_in = loyer * (12 - vacance)
-    total_out = taxe_fonciere + entretien * loyer + charge_copro + comptable + assurance
-    rendement_annuel = (total_in - total_out) / credit * 100
+    total_out = taxe_fonciere + charge_copro + comptable + assurance + entretien * loyer
+    ratio = total_out / total_in * 100
     st.markdown("## Bilan annuel ##")
     st.markdown(f"Total revenus = **{int(total_in)}€**.")
     st.markdown(f"Total dépenses = **{int(total_out)}€**.")
-    st.markdown(f"Différence = **{int(total_in - total_out)}€**. Soit un rendement annuel de **{round(rendement_annuel, 2)}%**")
+    st.markdown(f"Différence = **{int(total_in - total_out)}€**. Ratio sortie/entrée de **{int(ratio)}% (viser 70% max)**")
 
 
 
