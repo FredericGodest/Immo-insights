@@ -77,7 +77,7 @@ def Detail_report():
 
     # Bilan
     total_in = loyer * (12 - vacance)
-    total_out = taxe_fonciere + entretien * loyer + 0.3 * charge_copro * (12 - vacance) + charge_copro * vacance + comptable + assurance
+    total_out = taxe_fonciere + entretien * loyer + charge_copro + comptable + assurance
     rendement_annuel = (total_in - total_out) / credit * 100
     st.markdown("## Bilan annuel ##")
     st.markdown(f"Total revenus = **{int(total_in)}€**.")
