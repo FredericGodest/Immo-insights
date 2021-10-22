@@ -58,7 +58,7 @@ def Estimator():
     default_taxe = 1000
     default_charge = 500
     year = 20
-    comptalbe = 40 * 12
+    comptable = 40 * 12
 
     # Users Inputs
     adress = st.text_input("Adresse au format : rue, Rouen", value=default_adress)
