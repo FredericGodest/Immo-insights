@@ -6,6 +6,7 @@ surface, taxe, rework, etc.
 # import libraries
 import streamlit as st
 
+
 def Detail_report():
     """
     This function is printing a report for the seller with a given adress,
@@ -22,8 +23,8 @@ def Detail_report():
     default_adress = "35 place du général de Gaulle, Rouen"
     default_surface = 25
     default_bank = 1.15
-    default_taxe = 1000
-    default_charge = 500
+    default_taxe = 700
+    default_charge = 600
     year = 20
     comptable = 40 * 12
     default_loyer = 500
@@ -38,6 +39,7 @@ def Detail_report():
     surface_leger = st.number_input("Surface à légérement rénover en m2", value=0)
     surface_lourd = st.number_input("Surface à rénover complétement en m2", value=0)
     windows = st.number_input("Nombre de fenêtre à passer en double vitrage", value=0)
+    nb_meubles = st.number_input("Pièces à meubler", value=0)
     kt = st.number_input("Facteur de sécurité", value=15) / 100
     entretien = st.number_input("Entretien par an (en nombre de loyer)", value=1)
     vacance = st.number_input("Nombre de mois de vacance locative par an", value=1)
@@ -48,9 +50,11 @@ def Detail_report():
     travaux_lourd = 800 * surface_lourd
     travaux_leger = 300 * surface_leger
     travaux_fenetre = 1300 * windows
-    travaux = travaux_lourd + travaux_leger + travaux_fenetre
+    meubles = nb_meubles * 1000
+    travaux = travaux_lourd + travaux_leger + travaux_fenetre + meubles
     st.markdown("## Loyers ##")
-    st.markdown(f"Le loyer estimé est de **{int(loyer)} €** par mois (dont {int(0.7 * charge_copro / 12)} € de charge) pour un {surface} m2 au *{adress}*")
+    st.markdown(
+        f"Le loyer estimé est de **{int(loyer)} €** par mois (dont {int(0.7 * charge_copro / 12)} € de charge) pour un {surface} m2 au *{adress}*")
 
     # Price estimations
     credit = mensualite * (1 - (1 + bank_rate / 12) ** (-12 * year)) / (bank_rate / 12)
@@ -66,25 +70,28 @@ def Detail_report():
     st.markdown(f"**{int(travaux_lourd)} €** de travaux lourds.")
     st.markdown(f"**{int(travaux_leger)} €** de travaux leger.")
     st.markdown(f"**{int(travaux_fenetre)} €** de remplacement de fenêtres.")
+    st.markdown(f"**{int(meubles)} €** de meubles/décorations.")
     st.markdown(f"Total travaux = {int(travaux)} €")
     st.markdown("## Proposition hors frais de notaire ##")
     st.markdown(f"##### **{int(prix_vente)} €**. Soit **{int(prix_vente / surface)} €/m2**. #####")
 
     # Data Rendements
     st.markdown("## Rendements ##")
-    st.markdown(f"Le rendement brut estimé est de **{round(rendement_brut, 2)}%**. Cash flow brut de **{round(cash_flow_brut, 2)}€**")
-    st.markdown(f"Le rendement net de charge estimé est de **{round(rendement_net, 2)}%**. Cash flow net de **{round(cash_flow_net, 2)}€**")
+    st.markdown(
+        f"Le rendement brut estimé est de **{round(rendement_brut, 2)}%**. Cash flow brut de **{round(cash_flow_brut, 2)}€**")
+    st.markdown(
+        f"Le rendement net de charge estimé est de **{round(rendement_net, 2)}%**. Cash flow net de **{round(cash_flow_net, 2)}€**")
 
     # Bilan
-    total_in = loyer * (12 - vacance)
-    total_out = taxe_fonciere + charge_copro + comptable + assurance + entretien * loyer + mensualite * 12
+    total_in = loyer * (12 - vacance)  # Loyer charges comprise (0.7 charge copro comprise)
+    charge_year = 0.3 * charge_copro * (12 - vacance) / 12 + charge_copro * vacance / 12
+    entretien = entretien * loyer
+    total_out = taxe_fonciere + charge_year + comptable + assurance + entretien + mensualite * 12
     ratio = total_out / total_in * 100
     st.markdown("## Bilan annuel ##")
     st.markdown(f"Total revenus = **{int(total_in)}€**.")
     st.markdown(f"Total dépenses = **{int(total_out)}€**.")
-    st.markdown(f"Différence = **{int(total_in - total_out)}€**. Ratio sortie/entrée de **{int(ratio)}% (viser 70% max)**")
+    st.markdown(
+        f"Différence = **{int(total_in - total_out)}€**. Ratio sortie/entrée de **{int(ratio)}% (viser 70% mini)**")
 
-
-
-
-
+    # Impots

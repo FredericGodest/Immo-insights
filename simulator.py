@@ -37,10 +37,7 @@ def Estimator():
     :return: results and plots to streamlit
     """
     # Get Datasets
-    df_global = pd.read_pickle(r"df_global.pickle")
-    df_loc = get_data()
-    df_vente = pd.read_pickle(r"df_vente.pickle")
-    df_vente_total = pd.read_pickle(r"df_vente_total.pickle")
+    df_loc, df_global, df_vente_total, df_vente = get_data()
     limite = 100
 
     # Titles
@@ -55,8 +52,8 @@ def Estimator():
     default_adress = "35 place du général de Gaulle, Rouen"
     default_surface = 25
     default_bank = 1.15
-    default_taxe = 1000
-    default_charge = 500
+    default_taxe = 700
+    default_charge = 600
     year = 20
     comptable = 40 * 12
 

@@ -41,10 +41,7 @@ def Global_insights():
              "Les données de location viennent de https://leboncoin.fr.")
 
     # Get Datasets
-    df_global = pd.read_pickle(r"df_global.pickle")
-    df_loc = get_data()
-    df_vente = pd.read_pickle(r"df_vente.pickle")
-    df_vente_total = pd.read_pickle(r"df_vente_total.pickle")
+    df_loc, df_global, df_vente_total, df_vente = get_data()
     limite = 100
 
     # Calculation

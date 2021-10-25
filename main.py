@@ -7,10 +7,12 @@ from global_function import *
 from details import *
 from simulator import *
 
+# App title
 st.set_page_config(page_title="Immo Insights")
+
+# Navigation bar
 st.sidebar.title("Navigation")
 selection = st.sidebar.radio("", ["Global Insights", "Simulateur", "Rapport"])
-
 if selection == "Global Insights":
     Global_insights()
 elif selection == "Simulateur":
