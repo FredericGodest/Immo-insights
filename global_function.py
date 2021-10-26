@@ -52,6 +52,13 @@ def Global_insights():
     popt_loc, _ = curve_fit(objective, surface, price)
     a, b, c = popt_loc
 
+    # Params for Sells
+    df_vente = df_vente[df_vente["surface_reelle_bati"] < limite]
+    surfaces_vente = df_vente["surface_reelle_bati"].to_numpy()
+    price_vente = df_vente["prix au m2"].to_numpy()
+    popt_vente, _ = curve_fit(objective, surfaces_vente, price_vente)
+    g, h, i = popt_vente
+
     # Creation of line data
     x_line = np.linspace(min(df_loc["surface [m2]"]), max(df_loc["surface [m2]"]), 100)
     y_line = objective(x_line, a, b, c) * x_line
@@ -67,6 +74,23 @@ def Global_insights():
     fig.update_layout(title_text=f"Evolution du loyer en fonction de la surface dans Rouen",
                       xaxis_title="Surface en m2",
                       yaxis_title="Loyer en €")
+    st.plotly_chart(fig)
+
+    # Plot Sells
+    x_line = np.linspace(min(df_vente["surface_reelle_bati"]),
+                         max(df_vente["surface_reelle_bati"]),
+                         100)
+    y_line = objective(x_line, g, h, i)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=surfaces_vente, y=price_vente,
+                             mode="markers",
+                             name="data réel"))
+    fig.add_trace(go.Scatter(x=x_line, y=y_line,
+                             mode="lines",
+                             name="tendance ville"))
+    fig.update_layout(title_text=f"Evolution du prix de vente en fonction de la surface dans Rouen en 2020",
+                      xaxis_title="Surface en m2",
+                      yaxis_title="Prix en €/m2")
     st.plotly_chart(fig)
 
     # SELL VS LOCATION

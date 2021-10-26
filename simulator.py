@@ -99,6 +99,18 @@ def Estimator():
     popt_loc, _ = curve_fit(objective, surfaces, price)
     d, e, f = popt_loc
 
+    # Params for Sells global
+    surfaces_vente = df_vente["surface_reelle_bati"].to_numpy()
+    price_vente = df_vente["prix au m2"].to_numpy()
+    popt_vente, _ = curve_fit(objective, surfaces_vente, price_vente)
+    j, k, l = popt_vente
+
+    # Params for Sells local
+    surfaces_vente = df_precise_vente["surface_reelle_bati"].to_numpy()
+    price_vente = df_precise_vente["prix au m2"].to_numpy()
+    popt_vente, _ = curve_fit(objective, surfaces_vente, price_vente)
+    g, h, i = popt_vente
+
     # Compute Rent in the neighbhoor
     loyer = surface * objective(surface, d, e, f)  # estimation du loyer
     assurance = 0.12 / 100 * loyer * 12  # environ 0.12%
@@ -156,13 +168,44 @@ def Estimator():
                              name="data réel"))
     fig.add_trace(go.Scatter(x=x_line, y=y_line,
                              mode="lines",
-                             name="approximation quartier"))
+                             name="tendance quartier"))
     fig.add_trace(go.Scatter(x=x_line, y=y_line_global,
                              mode="lines",
-                             name="approximation ville"))
-    fig.update_layout(title_text=f"Evolution du loyer en fonction de la surface dans le quartier {quartier}",
+                             name="tendance ville"))
+    fig.update_layout(title_text=f"Evolution du loyer en fonction de la surface dans le quartier",
                       xaxis_title="Surface en m2",
                       yaxis_title="Loyer en €")
+    st.plotly_chart(fig)
+
+    # Plot Sells
+    x_line = np.linspace(min(df_precise_vente["surface_reelle_bati"]),
+                         max(df_precise_vente["surface_reelle_bati"]),
+                         100)
+    y_line = objective(x_line, g, h, i)
+    y_line_global = objective(x_line, j, k, l)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=surfaces_vente, y=price_vente,
+                             mode="markers",
+                             name="data réel"))
+    fig.add_trace(go.Scatter(x=x_line, y=y_line,
+                             mode="lines",
+                             name="tendance quartier"))
+    fig.add_trace(go.Scatter(x=x_line, y=y_line_global,
+                             mode="lines",
+                             name="tendance ville"))
+    fig.update_layout(title_text=f"Evolution du prix de vente en fonction de la surface dans le quartier en 2020",
+                      xaxis_title="Surface en m2",
+                      yaxis_title="Prix en €/m2")
+    st.plotly_chart(fig)
+
+    # plot density price
+    limite = 100
+    vente = df_precise_vente[df_precise_vente["surface_reelle_bati"] < limite]["prix au m2"]
+    hist_data = [vente]
+    group_labels = ["Ventes"]
+    fig = ff.create_distplot(hist_data, group_labels, bin_size=250)
+    fig.update_layout(title_text=f"Densité des prix en 2020 dans le quartier",
+                      xaxis_title="Prix en €")
     st.plotly_chart(fig)
 
     # plot density surface
@@ -172,7 +215,7 @@ def Estimator():
     hist_data = [vente, location]
     group_labels = ["Ventes", "Location"]
     fig = ff.create_distplot(hist_data, group_labels, bin_size=5)
-    fig.update_layout(title_text=f"Densité des ventes et des locations en 2020 dans le quartier {quartier}",
+    fig.update_layout(title_text=f"Densité des ventes et des locations en 2020 dans le quartier",
                       xaxis_title="Surface en m2")
     st.plotly_chart(fig)
 
@@ -219,21 +262,11 @@ def Estimator():
                       yaxis_title="Nombre de vente")
     st.plotly_chart(fig)
 
-    # plot density price
-    limite = 100
-    vente = df_precise_vente[df_precise_vente["surface_reelle_bati"] < limite]["prix au m2"]
-    hist_data = [vente]
-    group_labels = ["Ventes"]
-    fig = ff.create_distplot(hist_data, group_labels, bin_size=250)
-    fig.update_layout(title_text=f"Densité des prix en 2020 dans le quartier {quartier}",
-                      xaxis_title="Prix en €")
-    st.plotly_chart(fig)
-
     # plot Map
     fig = px.scatter_mapbox(df_precise_vente, lat="latitude", lon="longitude", color="prix au m2",
                             size="surface_reelle_bati",
                             labels="Localisation", color_continuous_scale=px.colors.sequential.thermal, size_max=30,
                             zoom=14,
                             mapbox_style="carto-positron")
-    fig.update_layout(title_text=f"Carte des ventes en 2020 dans le quartier {quartier}")
+    fig.update_layout(title_text=f"Carte des ventes en 2020 dans le quartier")
     st.plotly_chart(fig)
