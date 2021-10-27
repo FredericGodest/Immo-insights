@@ -70,7 +70,7 @@ def Global_insights():
                              name="data réel"))
     fig.add_trace(go.Scatter(x=x_line, y=y_line,
                              mode="lines",
-                             name="approximation"))
+                             name="tendance"))
     fig.update_layout(title_text=f"Evolution du loyer en fonction de la surface dans Rouen",
                       xaxis_title="Surface en m2",
                       yaxis_title="Loyer en €")

@@ -96,9 +96,8 @@ def Detail_report():
         f"Différence = **{int(total_in - total_out)}€**. Ratio sortie/entrée de **{int(ratio)}% (viser 70% mini)**")
 
     # Impots
-    charge_year = taxe_fonciere + charge_copro + comptable + entretien
-    coef_ammortissement = 4.75 / 100
-    ammortissement = coef_ammortissement * credit
+    depreciation = prix_vente * 0.9 / 30 + travaux / 5
+    charge_year = taxe_fonciere + charge_copro + comptable + entretien + depreciation
     capital_year = credit / year
     interet_year = mensualite * 12 - capital_year
     taxe_micro = loyer * (12 - vacance) * 0.5 * (TMI + 0.172)
