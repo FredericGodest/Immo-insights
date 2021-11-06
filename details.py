@@ -40,7 +40,7 @@ def Detail_report():
     surface_lourd = st.number_input("Surface à rénover complétement en m2", value=0)
     windows = st.number_input("Nombre de fenêtre à passer en double vitrage", value=0)
     nb_meubles = st.number_input("Pièces à meubler", value=0)
-    kt = st.number_input("Facteur de sécurité", value=15) / 100
+    kt = st.number_input("Facteur de sécurité en %", value=15) / 100
     entretien = st.number_input("Entretien par an (en nombre de loyer)", value=1)
     vacance = st.number_input("Nombre de mois de vacance locative par an", value=1)
     TMI = st.number_input("Taux Marginal d'Imposition en %", value=11) / 100
