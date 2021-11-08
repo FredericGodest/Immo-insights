@@ -86,7 +86,7 @@ def Detail_report():
     # Bilan
     total_in = (loyer) * (12 - vacance)  # Loyer charges comprise (0.7 charge copro comprise)
     entretien = entretien * loyer
-    charge_year = taxe_fonciere + (charge_copro * vacance + 0.3 * charge_copro * (12 - vacance)) / 12 + comptable + entretien
+    charge_year = taxe_fonciere + (charge_copro * vacance + 0.3 * charge_copro * (12 - vacance)) / 12 + comptable + entretien + assurance
     total_out = charge_year + mensualite * 12
     ratio = total_out / total_in * 100
     st.markdown("## Bilan annuel ##")
@@ -102,7 +102,7 @@ def Detail_report():
     interet_year = mensualite * 12 - capital_year
     taxe_micro = loyer * (12 - vacance) * 0.5 * (TMI + 0.172)
     total_in_HC = (loyer - 0.7 * charge_copro / 12) * (12 - vacance)
-    taxe_reel = (total_in_HC - charge_year - interet_year) * (TMI + 0.172)
+    taxe_reel = (total_in_HC - depreciation - charge_year - interet_year) * (TMI + 0.172)
 
     st.markdown("## Bilan aprés impôts ##")
     st.markdown("### LMNP - Micro BIC ###")

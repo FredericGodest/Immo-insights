@@ -118,6 +118,8 @@ def Doc():
     st.markdown("Le gradient de couleur et la taille des bulles représentent le nombre "
                 "de vente enregistrées dans le quartier en 2020.")
 
+    ###### SIMULATEUR ######
+
     st.markdown("## Simulateur ##")
     st.markdown("Cet outil se base sur les données de location afin d'estimer un loyer en fonction du quartier.")
 
@@ -190,6 +192,31 @@ def Doc():
     st.markdown("crédit = crédit précédement calculé.")
     st.markdown("travaux = travaux précédement calculés.")
     st.markdown("La division par 1.08 représente les frais de notaire qui montent à 8%.")
+
+    st.markdown("#### Calcul des rendements et des cashflow ####")
+    st.markdown("On peut distinguer 2 types de rendements et de cash flow; le brut et le net. "
+                "Ici les deux sont calculés avec les formules suivantes:")
+
+    st.latex(r'''
+                rendement_{brut} = \frac{loyer \times 12}{crédit}
+            ''')
+    st.latex(r'''
+                cashflow_{brut} = loyer - mensualité
+            ''')
+    st.latex(r'''
+                rendement_{net} = \frac{loyer \times 12 - 0.3 \times charge - taxe - assurance - comptable}{crédit}
+            ''')
+    st.latex(r'''
+                cashflow_{net} = loyer - mensualité - \frac{0.3 \times charge - taxe - assurance - comptable}{12}
+            ''')
+
+    st.markdown("Où : ")
+    st.markdown("loyer = loyer par mensuel")
+    st.markdown("crédit = crédit total")
+    st.markdown("charge = charges de copropriété")
+    st.markdown("taxe = taxe foncière")
+    st.markdown("assurance = assurance loyer impayé")
+    st.markdown("comptable = coût du comptable")
 
     st.markdown("### Evolution du loyer en fonction de la surface dans la quartier à l'étude###")
     st.markdown("#### Jeux de données ####")
@@ -287,6 +314,8 @@ def Doc():
     st.markdown("Les données sont représentées sous forme de bulles dont la couleur change en fonction "
                 "du prix au m2 et la taille de la bulle change en fonction de la surface.")
 
+    ###### RAPPORT ######
+
     st.markdown("## Rapport ##")
     st.markdown("Cet outil permettra de sortir un rapport détaillé un tenant compte de la fiscalité et "
                 "en détaillant tous les frais associés.")
@@ -382,6 +411,136 @@ def Doc():
     st.markdown("crédit = crédit précédement calculé.")
     st.markdown("travaux total = travaux précédement calculés.")
     st.markdown("La division par 1.08 représente les frais de notaire qui montent à 8%.")
+
+    st.markdown("#### Calcul des rendements et des cashflow ####")
+    st.markdown("On peut distinguer 2 types de rendements et de cash flow; le brut et le net. "
+                "Ici les deux sont calculés avec les formules suivantes:")
+
+    st.latex(r'''
+                    rendement_{brut} = \frac{loyer \times 12}{crédit}
+                ''')
+    st.latex(r'''
+                    cashflow_{brut} = loyer - mensualité
+                ''')
+    st.latex(r'''
+                    rendement_{net} = \frac{loyer \times 12 - 0.3 \times charge - taxe - assurance - comptable}{crédit}
+                ''')
+    st.latex(r'''
+                    cashflow_{net} = loyer - mensualité - \frac{0.3 \times charge - taxe - assurance - comptable}{12}
+                ''')
+
+    st.markdown("Où : ")
+    st.markdown("loyer = loyer par mensuel")
+    st.markdown("crédit = crédit total")
+    st.markdown("charge = charges de copropriété")
+    st.markdown("taxe = taxe foncière")
+    st.markdown("assurance = assurance loyer impayé")
+    st.markdown("comptable = coût du comptable")
+
+    st.markdown("### Bilan annuel ###")
+    st.markdown("Ici on va faire le bilan des entrées et des sorties d'argent en allant dans le détail "
+                "et en étant le plus conservateur possible.   "
+                "Voici les formules utilisées : ")
+
+    st.latex(r'''
+                Entrées = loyer \times (12 - n)
+            ''')
+    st.latex(r'''
+                entretien = loyer \times m
+            ''')
+    st.latex(r'''
+                charges_{annuelles} = taxe + charge \times (n + 0.3 \times (12 - n)) + comptable + entretien + assurance
+            ''')
+    st.latex(r'''
+                Sorties = charges_{annuelles} + mensualité \times 12
+            ''')
+    st.latex(r'''
+                Différence = Entrées - Sorties
+            ''')
+    st.markdown("Où : ")
+    st.markdown("n = nombre de vacance locative")
+    st.markdown("m = facteur d'entretien du bien (entre 1 et 3)")
+    st.markdown("entretien : coût d'entretien du bien")
+    st.markdown("loyer = loyer par mensuel")
+    st.markdown("crédit = crédit total")
+    st.markdown("charge = charges de copropriété")
+    st.markdown("taxe = taxe foncière")
+    st.markdown("assurance = assurance loyer impayé")
+    st.markdown("comptable = coût du comptable")
+
+    st.markdown("### Bilan annuel aprés impôts ###")
+    st.markdown("Pour des raisons de simplicité, ici nous developerons les locations LMNP avec "
+                "ses deux régimes les plus connus : Micro BIC et Réél.")
+
+    st.markdown("#### Micro BIC ####")
+    st.markdown("On commence par le plus simple avec le formule suivante :")
+
+    st.latex(r'''
+                Impôts_{BIC} = \frac{Entrées}{2} \times (TMI + 17,2\%)
+            ''')
+    st.markdown("Où : ")
+    st.markdown("Entrées = les entrées d'argent précédément calculées")
+    st.markdown("TMI = Taux Marginal d'Imposition")
+
+    st.markdown("#### Réel ####")
+    st.markdown("Ce régime fiscal peut être bien plus avantageux que le précédement mais "
+                "en contre partie il est plus complexe à mettre en oeuvre au niveau "
+                "comptable.")
+
+    st.markdown("Commençons par calculer la dépreciation du bien en fonction des années. Pour cela "
+                "il faut prendre 90% du prix du bien (car 10% réprésentent la surface au sol "
+                "qui ne se déprécie pas dans le temps). Il faut ensuite diviser le résultat par 30 car"
+                " on considére que, en moyenne, un bien perd complétement sa valeur en 30 ans. "
+                "On peut aussi ajouter tous les travaux éventuels qui peuvent être divisé par 5 car, en moyenne "
+                "on considère que tous les travaux perdent leur valeur en 5 ans. On obtient donc : ")
+
+    st.latex(r'''
+                depreciation = \frac{vente \times 90 \%}{30} + \frac{travaux}{5}
+            ''')
+    st.markdown("Où : ")
+    st.markdown("vente = prix de vente du bien hors frais de notaire")
+    st.markdown("travaux = estimation des travaux à effectuer.")
+
+    st.markdown("Dans le régime réel, toutes les charges sont déductibles d'impôts. Nous pouvons donc les sommer :")
+    st.latex(r'''
+                charges_{annuelles} = taxe + charge \times (n + 0.3 \times (12 - n)) + comptable + entretien + assurance
+            ''')
+    st.markdown("Cette formule est un copié-collé de la formule précédente.")
+
+    st.markdown("Dans le régime réel on peut aussi déduire les interets que l'on verse "
+                "à la banque. Dans un soucis de simplicité et afin d'être conservateur sur le long terme "
+                "il est plus sage de lisser les interets sur la durée du prêt afin d'obtenir un coût moyen d'interet "
+                "par an. Voici la formule utilisée :")
+
+    st.latex(r'''
+                interet_{annuels} = mensualité \times 12 - \frac{crédit}{années}
+            ''')
+    st.markdown("Où : ")
+    st.markdown("mensualité = mensualité du crédit")
+    st.markdown("crédit = crédit de la banque")
+    st.markdown("années = nombre d'année du crédit (ici 20 par défaut)")
+
+    st.markdown("A l'inverse du régime Micro BIC, ici il faut déduire les charges des entrées.")
+    st.latex(r'''
+                Entrées_{HT} = (loyer - 70 \% \times charge) \times (12 - n)
+            ''')
+
+    st.markdown("Où : ")
+    st.markdown("Charge = charges mensualisée")
+    st.markdown("n = vacances locatives")
+
+    st.markdown("Vous pouvez maintenant determiner les impôts moyen à payer par an au régime réel:")
+    st.latex(r'''
+                Impôts_{reel} = (Entrées_{HT} - depreciation - charges_{annuelles} - interet_{annuels}) \times (TMI + 17,2\%)
+            ''')
+
+    st.markdown("Les calculs de différence se font avec la formule suivante :")
+    st.latex(r'''
+                Différence = Entrées - Sorties - Impôts
+            ''')
+
+
+
 
 
 
