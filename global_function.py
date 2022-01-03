@@ -41,7 +41,7 @@ def Global_insights():
              "Les données de location viennent de https://leboncoin.fr.")
 
     # Get Datasets
-    df_loc, df_global, df_vente_total, df_vente = get_data()
+    df_loc, df_global, df_vente_total, df_vente, forecast_count, forecast_price = get_data()
     limite = 100
 
     # Calculation
@@ -62,6 +62,17 @@ def Global_insights():
     # Creation of line data
     x_line = np.linspace(min(df_loc["surface [m2]"]), max(df_loc["surface [m2]"]), 100)
     y_line = objective(x_line, a, b, c) * x_line
+
+    # Find 2021 approximation with forecast
+    last_record = df_vente_total.sort_index().index[-1]
+    df1 = df_vente_total[(df_vente_total.index >= "01-01-2021") & (df_vente_total.index <= last_record)]
+    df1 = df1.groupby(pd.Grouper(freq="m")).count()
+    x1 = df1.valeur_fonciere.sum()
+    df = forecast_count[(forecast_count["ds"] >= last_record) & (forecast_count["ds"] <= "31-12-2021")]
+    df = df.set_index("ds")
+    df = df.groupby(pd.Grouper(freq="m")).sum()
+    result = df.trend.sum() + x1
+
 
     # Rent Plottings
     fig = go.Figure()
@@ -88,41 +99,30 @@ def Global_insights():
     fig.add_trace(go.Scatter(x=x_line, y=y_line,
                              mode="lines",
                              name="tendance ville"))
-    fig.update_layout(title_text=f"Evolution du prix de vente en fonction de la surface dans Rouen en 2020",
+    fig.update_layout(title_text=f"Evolution du prix de vente en fonction de la surface dans Rouen en 2021",
                       xaxis_title="Surface en m2",
                       yaxis_title="Prix en €/m2")
     st.plotly_chart(fig)
 
-    # SELL VS LOCATION
-    vente = df_vente[df_vente["surface_reelle_bati"] < limite]["surface_reelle_bati"]
-    location = df_loc[df_loc["surface [m2]"] < limite]["surface [m2]"]
-    hist_data = [vente, location]
-    group_labels = ["Ventes", "Locations"]
-    fig = ff.create_distplot(hist_data, group_labels, bin_size=5)
-    fig.update_layout(title_text="Nombre de location et de vente en fonction de la surface",
-                      xaxis_title="surface [m2]")
-    st.plotly_chart(fig)
 
     # SELL preparing data for plotting
     df_vente_total_group = df_vente_total.groupby(["Années"]).mean()
     df_vente_total_count = df_vente_total.groupby(["Années"]).count()
+    df_vente_total_count.iloc[-1] = result
     years = df_vente_total_group.index.tolist()
     sell = df_vente_total_group["prix au m2"].tolist()
     count = df_vente_total_count["prix au m2"].tolist()
-    model_count = np.polyfit(years, count, 1)
-    model_sell = np.polyfit(years, sell, 1)
-    years_estimation = np.array([[2016, 2017, 2018, 2019, 2020, 2021]])
-    sell_estimation = model_sell[0] * years_estimation + model_sell[1]
-    count_estimation = model_count[0] * years_estimation + model_count[1]
+    years_estimation = np.array([[2016, 2017, 2018, 2019, 2020, 2021, 2022]])
 
     # PRICE SELL plotting
     # PRIX VENTE
+    y = forecast_price.set_index("ds").groupby(pd.Grouper(freq="Y")).mean()["trend"].iloc[:-1]
     fig = go.Figure()
     fig.add_trace(go.Bar(x=df_vente_total_group.index, y=df_vente_total_group["prix au m2"],
                          name="data réel"))
-    fig.add_trace(go.Bar(x=[years_estimation[0][-1]], y=[sell_estimation[0][-1]],
+    fig.add_trace(go.Bar(x=[years_estimation[0][-1]], y=[y[-1]],
                          name="prédiction"))
-    fig.add_trace(go.Scatter(x=years_estimation[0], y=sell_estimation[0],
+    fig.add_trace(go.Scatter(x=years_estimation[0], y=y,
                              mode="lines",
                              name="tendance"))
     fig.update_layout(title_text="Evolution du prix de vente du m2 en fonction des années",
@@ -131,12 +131,17 @@ def Global_insights():
     st.plotly_chart(fig)
 
     # NUMBER SELL plotting
+    df_vente_ma = pd.DataFrame([[result] * len(list(df_vente_total_count.columns))],
+                               columns=list(df_vente_total_count.columns), index=['2022'])
+    df_sub = df_vente_total_count.append(df_vente_ma)
+    df_sub["MA"] = df_sub["prix au m2"].rolling(window=4).mean()
+
     fig = go.Figure()
     fig.add_trace(go.Bar(x=df_vente_total_count.index, y=df_vente_total_count["prix au m2"],
                          name="data réel"))
-    fig.add_trace(go.Bar(x=[years_estimation[0][-1]], y=[count_estimation[0][-1]],
+    fig.add_trace(go.Bar(x=[df_sub.index[-1]], y=[df_sub.MA.iloc[-1]],
                          name="prédiction"))
-    fig.add_trace(go.Scatter(x=years_estimation[0], y=count_estimation[0],
+    fig.add_trace(go.Scatter(x=df_sub.index, y=df_sub.MA,
                              mode="lines",
                              name="tendance"))
     fig.update_layout(title_text="Evolution du nombre de vente en fonction des années",
@@ -164,7 +169,7 @@ def Global_insights():
                             zoom=12,
                             mapbox_style="carto-positron",
                             hover_name=df_map.index)
-    fig.update_layout(title_text="Carte des ventes enregistrées entre 2016 et 2020 les quartiers de Rouen")
+    fig.update_layout(title_text="Carte des ventes enregistrées entre 2016 et 2021 les quartiers de Rouen")
     st.plotly_chart(fig)
 
 

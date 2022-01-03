@@ -37,8 +37,19 @@ def Estimator():
     :return: results and plots to streamlit
     """
     # Get Datasets
-    df_loc, df_global, df_vente_total, df_vente = get_data()
+    df_loc, df_global, df_vente_total, df_vente, forecast_count, forecast_price = get_data()
     limite = 100
+
+    # Find 2021 approximation with forecast
+    last_record = df_vente_total.sort_index().index[-1]
+    df1 = df_vente_total[(df_vente_total.index >= "01-01-2021") & (df_vente_total.index <= last_record)]
+    df1 = df1.groupby(pd.Grouper(freq="m")).count()
+    x1 = df1.valeur_fonciere.sum()
+    df = forecast_count[(forecast_count["ds"] >= last_record) & (forecast_count["ds"] <= "31-12-2021")]
+    df = df.set_index("ds")
+    df = df.groupby(pd.Grouper(freq="m")).sum()
+    result = df.trend.sum() + x1
+    ratio_count = result / df_vente_total.groupby(["Années"]).count().iloc[-2]["valeur_fonciere"]
 
     # Titles
     st.title("Simulateur d'achat et insights de quartier")
@@ -193,7 +204,7 @@ def Estimator():
     fig.add_trace(go.Scatter(x=x_line, y=y_line_global,
                              mode="lines",
                              name="tendance ville"))
-    fig.update_layout(title_text=f"Evolution du prix de vente en fonction de la surface dans le quartier en 2020",
+    fig.update_layout(title_text=f"Evolution du prix de vente en fonction de la surface dans le quartier en 2021",
                       xaxis_title="Surface en m2",
                       yaxis_title="Prix en €/m2")
     st.plotly_chart(fig)
@@ -204,44 +215,35 @@ def Estimator():
     hist_data = [vente]
     group_labels = ["Ventes"]
     fig = ff.create_distplot(hist_data, group_labels, bin_size=250)
-    fig.update_layout(title_text=f"Densité des prix en 2020 dans le quartier",
+    fig.update_layout(title_text=f"Densité des prix en 2021 dans le quartier",
                       xaxis_title="Prix en €")
-    st.plotly_chart(fig)
-
-    # plot density surface
-    limite = 100
-    vente = df_precise_vente[df_precise_vente["surface_reelle_bati"] < limite]["surface_reelle_bati"]
-    location = df_precise_loc[df_precise_loc["surface [m2]"] < limite]["surface [m2]"]
-    hist_data = [vente, location]
-    group_labels = ["Ventes", "Location"]
-    fig = ff.create_distplot(hist_data, group_labels, bin_size=5)
-    fig.update_layout(title_text=f"Densité des ventes et des locations en 2020 dans le quartier",
-                      xaxis_title="Surface en m2")
     st.plotly_chart(fig)
 
     # SELL preparing data for plotting
     df_vente_total_group = df_vente_total.groupby(["Années"]).mean()
     df_vente_total_count = df_vente_total.groupby(["Années"]).count()
-
+    df_vente_total_count.iloc[-1] = ratio_count * df_vente_total_count.iloc[-2]["prix au m2"]
     years = df_vente_total_group.index.tolist()
     sell = df_vente_total_group["prix au m2"].tolist()
     count = df_vente_total_count["prix au m2"].tolist()
     model_count = np.polyfit(years, count, 1)
     model_sell = np.polyfit(years, sell, 1)
-    years_estimation = np.array([[2016, 2017, 2018, 2019, 2020, 2021]])
+    years_estimation = np.array([[2016, 2017, 2018, 2019, 2020, 2021, 2022]])
     sell_estimation = model_sell[0] * years_estimation + model_sell[1]
     count_estimation = model_count[0] * years_estimation + model_count[1]
 
     # PRICE SELL plotting
     # PRIX VENTE
+    y = forecast_price.set_index("ds").groupby(pd.Grouper(freq="Y")).mean()["trend"].iloc[:-1]
+    ratio = y.iloc[-1] / y.iloc[-2]
     fig = go.Figure()
     fig.add_trace(go.Bar(x=df_vente_total_group.index, y=df_vente_total_group["prix au m2"],
                          name="data réel"))
-    fig.add_trace(go.Bar(x=[years_estimation[0][-1]], y=[sell_estimation[0][-1]],
+    fig.add_trace(go.Bar(x=[years_estimation[0][-1]], y=[df_vente_total_group["prix au m2"].iloc[-1]*ratio],
                          name="prédiction"))
-    fig.add_trace(go.Scatter(x=years_estimation[0], y=sell_estimation[0],
+    fig.add_trace(go.Scatter(x=years_estimation[0], y=y,
                              mode="lines",
-                             name="tendance"))
+                             name="tendance ville"))
     fig.update_layout(title_text=f"Evolution du prix de vente du m2 en fonction des années dans le quartier",
                       xaxis_title="Années",
                       yaxis_title="Prix de vente [€/m2]")
@@ -249,12 +251,19 @@ def Estimator():
 
 
     # NUMBER SELL plotting
+    result = df_vente_total_count.iloc[-1]["prix au m2"]
+    df_vente_ma = pd.DataFrame([[result] * len(list(df_vente_total_count.columns))],
+                               columns=list(df_vente_total_count.columns), index=['2022'])
+    df_sub = df_vente_total_count.append(df_vente_ma)
+    df_sub["MA"] = df_sub["prix au m2"].rolling(window=4).mean()
+
     fig = go.Figure()
+    df_vente_total_count["MA"] = df_vente_total_count["prix au m2"].rolling(window=2).mean()
     fig.add_trace(go.Bar(x=df_vente_total_count.index, y=df_vente_total_count["prix au m2"],
                          name="data réel"))
-    fig.add_trace(go.Bar(x=[years_estimation[0][-1]], y=[count_estimation[0][-1]],
+    fig.add_trace(go.Bar(x=[df_sub.index[-1]], y=[df_sub.MA.iloc[-1]],
                          name="prédiction"))
-    fig.add_trace(go.Scatter(x=years_estimation[0], y=count_estimation[0],
+    fig.add_trace(go.Scatter(x=df_sub.index, y=df_sub.MA,
                              mode="lines",
                              name="tendance"))
     fig.update_layout(title_text=f"Evolution du nombre de vente en fonction des années dans le quartier",
@@ -268,5 +277,5 @@ def Estimator():
                             labels="Localisation", color_continuous_scale=px.colors.sequential.thermal, size_max=30,
                             zoom=14,
                             mapbox_style="carto-positron")
-    fig.update_layout(title_text=f"Carte des ventes en 2020 dans le quartier")
+    fig.update_layout(title_text=f"Carte des ventes en 2021 dans le quartier")
     st.plotly_chart(fig)

@@ -19,6 +19,10 @@ def get_data():
     # GET DB Vente
     df_vente_total = pd.read_pickle(r"df_vente_total.pickle")
 
+    # Get Forecasts
+    forecast_count = pd.read_pickle(r"forecast_count.pickle")
+    forecast_price = pd.read_pickle(r"forecast_price.pickle")
+
     # PROD MOD
     if os.environ.get("ENV") == "PROD":
         id = os.environ.get("SHEET_ID")
@@ -55,7 +59,7 @@ def get_data():
         df_loc.iloc[:, index] = df_loc.iloc[:, index].astype(float) # float convertion
 
     # Filtering on latest years (2020)
-    df_vente = df_vente_total[df_vente_total["Années"] == 2020]
+    df_vente = df_vente_total[df_vente_total["Années"] == 2021]
 
     # Group data with mean and count
     df_vente_group = df_vente.groupby(["Quartier"]).mean()
@@ -80,4 +84,4 @@ def get_data():
     df_global["indicateur"] = (df_global["tension %"] * 2 + df_global["rendement brut %"]) / 3
     df_global["rank"] = df_global["indicateur"].rank(ascending=True)
 
-    return df_loc, df_global, df_vente_total, df_vente
+    return df_loc, df_global, df_vente_total, df_vente, forecast_count, forecast_price
