@@ -176,7 +176,7 @@ def Estimator():
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=surfaces, y=rent,
                              mode="markers",
-                             name="data réel"))
+                             name="data réelle"))
     fig.add_trace(go.Scatter(x=x_line, y=y_line,
                              mode="lines",
                              name="tendance quartier"))
@@ -197,7 +197,7 @@ def Estimator():
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=surfaces_vente, y=price_vente,
                              mode="markers",
-                             name="data réel"))
+                             name="data réelle"))
     fig.add_trace(go.Scatter(x=x_line, y=y_line,
                              mode="lines",
                              name="tendance quartier"))
@@ -238,7 +238,7 @@ def Estimator():
     ratio = y.iloc[-1] / y.iloc[-2]
     fig = go.Figure()
     fig.add_trace(go.Bar(x=df_vente_total_group.index, y=df_vente_total_group["prix au m2"],
-                         name="data réel"))
+                         name="data réelle"))
     fig.add_trace(go.Bar(x=[years_estimation[0][-1]], y=[df_vente_total_group["prix au m2"].iloc[-1]*ratio],
                          name="prédiction"))
     fig.add_trace(go.Scatter(x=years_estimation[0], y=y,
@@ -260,7 +260,7 @@ def Estimator():
     fig = go.Figure()
     df_vente_total_count["MA"] = df_vente_total_count["prix au m2"].rolling(window=2).mean()
     fig.add_trace(go.Bar(x=df_vente_total_count.index, y=df_vente_total_count["prix au m2"],
-                         name="data réel"))
+                         name="data réelle"))
     fig.add_trace(go.Bar(x=[df_sub.index[-1]], y=[df_sub.MA.iloc[-1]],
                          name="prédiction"))
     fig.add_trace(go.Scatter(x=df_sub.index, y=df_sub.MA,

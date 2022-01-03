@@ -78,7 +78,7 @@ def Global_insights():
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=surface, y=rent,
                              mode="markers",
-                             name="data réel"))
+                             name="data réelle"))
     fig.add_trace(go.Scatter(x=x_line, y=y_line,
                              mode="lines",
                              name="tendance"))
@@ -95,7 +95,7 @@ def Global_insights():
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=surfaces_vente, y=price_vente,
                              mode="markers",
-                             name="data réel"))
+                             name="data réelle"))
     fig.add_trace(go.Scatter(x=x_line, y=y_line,
                              mode="lines",
                              name="tendance ville"))
@@ -119,7 +119,7 @@ def Global_insights():
     y = forecast_price.set_index("ds").groupby(pd.Grouper(freq="Y")).mean()["trend"].iloc[:-1]
     fig = go.Figure()
     fig.add_trace(go.Bar(x=df_vente_total_group.index, y=df_vente_total_group["prix au m2"],
-                         name="data réel"))
+                         name="data réelle"))
     fig.add_trace(go.Bar(x=[years_estimation[0][-1]], y=[y[-1]],
                          name="prédiction"))
     fig.add_trace(go.Scatter(x=years_estimation[0], y=y,
@@ -138,7 +138,7 @@ def Global_insights():
 
     fig = go.Figure()
     fig.add_trace(go.Bar(x=df_vente_total_count.index, y=df_vente_total_count["prix au m2"],
-                         name="data réel"))
+                         name="data réelle"))
     fig.add_trace(go.Bar(x=[df_sub.index[-1]], y=[df_sub.MA.iloc[-1]],
                          name="prédiction"))
     fig.add_trace(go.Scatter(x=df_sub.index, y=df_sub.MA,
