@@ -6,7 +6,6 @@ It also gives insights for data analytics.
 #import libraries
 import pickle
 import pandas as pd
-from geopy.geocoders import Nominatim
 import streamlit as st
 import plotly.graph_objects as go
 import numpy as np
@@ -39,6 +38,7 @@ def Estimator():
     # Get Datasets
     df_loc, df_global, df_vente_total, df_vente, forecast_count, forecast_price = get_data()
     limite = 100
+    dropdown = tuple(df_loc["Localisation"].drop_duplicates())
 
     # Find 2021 approximation with forecast
     last_record = df_vente_total.sort_index().index[-1]
@@ -66,37 +66,19 @@ def Estimator():
     default_taxe = 700
     default_charge = 600
     year = 20
-    comptable = 40 * 12
 
     # Users Inputs
-    adress = st.text_input("Adresse au format : rue, Rouen", value=default_adress)
+    quartier =  st.selectbox('Dans quel quartier le bien est il situé ?', dropdown)
     surface = st.number_input("Surface en m2", value=default_surface)
     bank_rate = st.number_input("Taux du prêt immo en %", value=default_bank) / 100
     taxe_fonciere = st.number_input("Taxe foncière en €/an", value=default_taxe)
     charge_copro = st.number_input("Charge de copro en €/an", value=default_charge)
+    prix_vente_site = st.number_input("Prix de vente sur site", value=100000)
 
-    # Geocoding and tests
-    locator = Nominatim(user_agent="my_Geocoder")
-    localisation = locator.geocode(adress)
-    try:
-        output = str(localisation.raw["display_name"])
-    except AttributeError:
-        st.markdown("### Il semblerait que l'adresse ne soit pas correcte ###")
-        return
-    if not "Rouen" in output:
-        st.markdown("### Il semblerait que l'adresse ne soit pas dans la ville de Rouen (76100 ou 76000) ###")
-        return
-
-    # Databases
-    df_global["distance"] = np.sqrt(
-            (localisation.latitude - df_global["latitude"]) ** 2 + ((localisation.longitude - df_global["longitude"])) ** 2)
-    result = df_global.sort_values(by=["distance"], ascending=True).head(1)
-    quartier = result.index[0]
     df_loc = df_loc[df_loc["surface [m2]"] < limite]
     df_precise_loc = df_loc[df_loc["Localisation"] == quartier]
     df_vente_total = df_vente_total[df_vente_total["Quartier"] == quartier]
     df_precise_vente = df_vente[df_vente["Quartier"] == quartier]
-
     # Get global data
     surfaces = df_loc["surface [m2]"].to_numpy()
     price = df_loc["prix au m2 [euros]"].to_numpy()
@@ -127,42 +109,41 @@ def Estimator():
     assurance = 0.12 / 100 * loyer * 12  # environ 0.12%
 
     # First calculation
-    mensualite = (loyer - (taxe_fonciere / 12 + 0.3 * charge_copro / 12 + assurance / 12 + comptable / 12)) * 0.85
+    mensualite = prix_vente_site/((1 - (1 + bank_rate / 12) ** (-12 * year)) / (bank_rate / 12))
     travaux_lourd = 800 * surface
     travaux_leger = 300 * surface
     st.markdown("# Loyers #")
-    st.markdown(f"Le loyer estimé est de **{int(loyer)} €** par mois (dont {int(0.7 * charge_copro / 12)} € de charge) pour un {surface} m2 au *{adress}*")
+    st.markdown(f"Le loyer estimé est de **{int(loyer)} €** par mois (dont {int(0.7 * charge_copro / 12)} € de charge) pour un {surface} m2 à *{quartier}*")
+    prix_ideal = int(loyer * 12 / 0.065)
+    prix_ideal_format = "{:,}".format(prix_ideal).replace(',', ' ')
+    st.markdown(f"Prix de vente mini conseillé = {prix_ideal_format}€")
 
     # Price estimations
-    credit = mensualite * (1 - (1 + bank_rate / 12) ** (-12 * year)) / (bank_rate / 12)
-    rendement_brut = loyer * 12 / credit * 100
-    rendement_net = (loyer * 12 - taxe_fonciere - 0.3 * charge_copro - assurance - comptable) / credit * 100
+    rendement_brut = loyer * 12 / prix_vente_site * 100
+    rendement_net = (loyer * 11 - taxe_fonciere - (0.3 * 11/12 + 1/12) * charge_copro - assurance) / prix_vente_site * 100
     cash_flow_brut = loyer - mensualite
-    cash_flow_net = loyer - mensualite - (0.3 * charge_copro + taxe_fonciere + assurance + comptable) / 12
-    st.markdown("# Rendements et Prêts #")
+    cash_flow_net = loyer - mensualite - (0.3 * charge_copro + taxe_fonciere + assurance) / 12
+    st.markdown("# Rendements et Prêts (avec prix de vente affiché)#")
     st.markdown("## Rendements ##")
     st.markdown(f"Remboursement en **{year} ans**.")
-    st.markdown(f"Le rendement brut estimé est de **{round(rendement_brut, 2)}%**. Cash flow brut de **{round(cash_flow_brut, 2)}€**")
-    st.markdown(f"Le rendement net de charge estimé est de **{round(rendement_net, 2)}%**. Cash flow net de **{round(cash_flow_net, 2)}€**")
+    st.markdown(f"Le rendement brut estimé est de **{round(rendement_brut, 2)}%**. Cash flow brut mensuel de **{round(cash_flow_brut, 2)}€**")
+    st.markdown(f"Le rendement net de charge estimé est de **{round(rendement_net, 2)}%**. Cash flow net mensuel de **{round(cash_flow_net, 2)}€**")
 
     # Gros Travaux
     st.markdown("## Prêts ##")
-    prix_notaire = credit - travaux_lourd
-    prix_vente = prix_notaire / 1.08  # -notaire
+    prix_vente = prix_vente_site - travaux_lourd
     st.markdown("### Gros travaux ###")
     st.markdown(f"**{int(prix_vente)} €** avec des gros travaux. Soit **{int(prix_vente / surface)} €/m2**.")
     st.markdown(f"Négociation : {int(prix_vente * 0.65)}, {int(prix_vente * 0.85)}, {int(prix_vente * 0.95)} ")
 
     # Petits Travaux
-    prix_notaire = credit - travaux_leger
-    prix_vente = prix_notaire / 1.08  # -notaire
+    prix_vente = prix_vente_site - travaux_leger
     st.markdown("### Petits travaux ###")
     st.markdown(f"**{int(prix_vente)} €** avec des petits travaux. Soit **{int(prix_vente / surface)} €/m2**.")
     st.markdown(f"Négociation : {int(prix_vente * 0.65)}, {int(prix_vente * 0.85)}, {int(prix_vente * 0.95)} ")
 
     # Sans Travaux
-    prix_notaire = credit
-    prix_vente = prix_notaire / 1.08  # -notaire
+    prix_vente = prix_vente_site
     st.markdown("### SANS travaux ###")
     st.markdown(f"**{int(prix_vente)} €** sans travaux. Soit **{int(prix_vente / surface)} €/m2**.")
     st.markdown(f"Négociation : {int(prix_vente * 0.65)}, {int(prix_vente * 0.85)}, {int(prix_vente * 0.95)} ")
