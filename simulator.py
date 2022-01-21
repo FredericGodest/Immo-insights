@@ -111,7 +111,7 @@ def Estimator():
 
     #input 2
     loyer = st.number_input("Loyer par mois (à corriger avec visite)", value=loyer_first)
-    prix_vente_site = st.number_input("Prix de vente sur site", value=loyer_first * 12 / 0.06)
+    prix_vente_site = st.number_input("Prix de vente (prix idéal par défaut)", value=loyer_first * 12 / 0.06)
     vacance = st.number_input("Vacance locative en mois/an", value=1)
     bank_rate = st.number_input("Taux du prêt immo en %", value=default_bank) / 100
 
