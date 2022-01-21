@@ -67,13 +67,12 @@ def Estimator():
     default_charge = 600
     year = 20
 
-    # Users Inputs
+    # Users Inputs 1
     quartier =  st.selectbox('Dans quel quartier le bien est il situé ?', dropdown)
     surface = st.number_input("Surface en m2", value=default_surface)
-    bank_rate = st.number_input("Taux du prêt immo en %", value=default_bank) / 100
     taxe_fonciere = st.number_input("Taxe foncière en €/an", value=default_taxe)
     charge_copro = st.number_input("Charge de copro en €/an", value=default_charge)
-    prix_vente_site = st.number_input("Prix de vente sur site", value=100000)
+
 
     df_loc = df_loc[df_loc["surface [m2]"] < limite]
     df_precise_loc = df_loc[df_loc["Localisation"] == quartier]
@@ -105,29 +104,49 @@ def Estimator():
     g, h, i = popt_vente
 
     # Compute Rent in the neighbhoor
-    loyer = surface * objective(surface, d, e, f)  # estimation du loyer
-    assurance = 0.12 / 100 * loyer * 12  # environ 0.12%
+    loyer_first = surface * objective(surface, d, e, f)  # estimation du loyer
+    st.markdown("## Loyers estimé basé sur data#")
+    st.markdown(
+        f"Le loyer estimé est de **{int(loyer_first)} €** par mois (dont {int(0.7 * charge_copro / 12)} € de charge) pour un {surface} m2 à *{quartier}*")
 
-    # First calculation
-    mensualite = prix_vente_site/((1 - (1 + bank_rate / 12) ** (-12 * year)) / (bank_rate / 12))
-    travaux_lourd = 800 * surface
-    travaux_leger = 300 * surface
-    st.markdown("# Loyers #")
-    st.markdown(f"Le loyer estimé est de **{int(loyer)} €** par mois (dont {int(0.7 * charge_copro / 12)} € de charge) pour un {surface} m2 à *{quartier}*")
-    prix_ideal = int(loyer * 12 / 0.065)
+    #input 2
+    loyer = st.number_input("Loyer par mois (à corriger avec visite)", value=loyer_first)
+    prix_vente_site = st.number_input("Prix de vente sur site", value=loyer_first * 12 / 0.06)
+    vacance = st.number_input("Vacance locative en mois/an", value=1)
+    bank_rate = st.number_input("Taux du prêt immo en %", value=default_bank) / 100
+
+    prix_ideal = int(loyer * 12 / 0.06)
     prix_ideal_format = "{:,}".format(prix_ideal).replace(',', ' ')
+    st.markdown("## Prix de vente estimé basé sur rendement 6%#")
     st.markdown(f"Prix de vente mini conseillé = {prix_ideal_format}€")
 
+
+    # First calculation
+    assurance = 0.12 / 100 * loyer * 12  # environ 0.12%
+    mensualite = prix_vente_site / ((1 - (1 + bank_rate / 12) ** (-12 * year)) / (bank_rate / 12))
+    travaux_lourd = 800 * surface
+    travaux_leger = 300 * surface
+
     # Price estimations
-    rendement_brut = loyer * 12 / prix_vente_site * 100
-    rendement_net = (loyer * 11 - taxe_fonciere - (0.3 * 11/12 + 1/12) * charge_copro - assurance) / prix_vente_site * 100
-    cash_flow_brut = loyer - mensualite
-    cash_flow_net = loyer - mensualite - (0.3 * charge_copro + taxe_fonciere + assurance) / 12
+    LOYER = (12 - vacance) * loyer # A l'année
+    CHARGE_COPRO = (0.3 * (12-vacance)/12 + vacance/12) * charge_copro # A l'année
+
+    rendement_brut = LOYER / prix_vente_site * 100
+    rendement_net = (LOYER - taxe_fonciere - CHARGE_COPRO - assurance - mensualite * 12) / prix_vente_site * 100
+    cash_flow_brut = LOYER/12 - mensualite
+    cash_flow_net = LOYER/12 - mensualite - (CHARGE_COPRO + taxe_fonciere + assurance) / 12
+    cash_flow_allin = LOYER/12 - (CHARGE_COPRO + taxe_fonciere + assurance) / 12
+    rendement_allin = (LOYER - taxe_fonciere - CHARGE_COPRO - assurance) / prix_vente_site * 100
+
     st.markdown("# Rendements et Prêts (avec prix de vente affiché)#")
     st.markdown("## Rendements ##")
     st.markdown(f"Remboursement en **{year} ans**.")
     st.markdown(f"Le rendement brut estimé est de **{round(rendement_brut, 2)}%**. Cash flow brut mensuel de **{round(cash_flow_brut, 2)}€**")
-    st.markdown(f"Le rendement net de charge estimé est de **{round(rendement_net, 2)}%**. Cash flow net mensuel de **{round(cash_flow_net, 2)}€**")
+    st.markdown("### Avec Crédit 20 ans ###")
+    st.markdown(f"Le rendement net de charge avec crédit est de **{round(rendement_net, 2)}%**. Cash flow net mensuel de **{round(cash_flow_net, 2)}€**")
+    st.markdown("### Sans Crédit ###")
+    st.markdown(
+        f"Le rendement net de charge sans crédit est de **{round(rendement_allin, 2)}%**. Cash flow net mensuel de **{round(cash_flow_allin, 2)}€**")
 
     # Gros Travaux
     st.markdown("## Prêts ##")
